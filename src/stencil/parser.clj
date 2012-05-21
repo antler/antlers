@@ -152,16 +152,10 @@
 
 (defn find-block
   [output block]
-  (loop [loc (zip/seq-zip (zip/root output))]
-    (println loc)
-    (println block)
-    (println (class loc))
+  (loop [loc (ast-zip output)]
     (cond
      (zip/end? loc) false
-     (= (:name block) (:name (zip/node loc)))
-     (zip/edit loc (fn [node] block))
-     ;; (zip/replace loc block)
-     ;; (zip/root (zip/replace loc block))
+     (= (:name block) (:name (zip/node loc))) (zip/replace loc block)
      :else (recur (zip/next loc)))))
 
 ;; find and replace any block of this name already in the zipper
@@ -169,7 +163,6 @@
 ;; contents of this block where it appears.
 (defn insert-block
   [output block]
-  (println "finding block")
   (if-let [found (find-block output block)]
     found
     (-> output
@@ -371,13 +364,14 @@
           (let [output (:output p)]
             ;; If we can go up from the zipper's current loc, then there is an
             ;; unclosed tag, so raise an error.
-            (if (zip/up output)
-              (throw+ {:type :unclosed-tag
-                       :scanner s}
-                      (str "Unclosed section: "
-                           (second (zip/node output))
-                           " at " (format-location s)))
-              (zip/root output)))
+            ;; (if (zip/up output)
+            ;;   (throw+ {:type :unclosed-tag
+            ;;            :scanner s}
+            ;;           (str "Unclosed section: "
+            ;;                (second (zip/node output))
+            ;;                " at " (format-location s)))
+            ;;   (zip/root output)))
+            (zip/root output))
           ;; If we are in tag-position, read a tag.
           (tag-position? s (:state p))
           (recur (parse-tag p))

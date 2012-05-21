@@ -100,7 +100,12 @@
   clojure.lang.PersistentVector
   (branch? [this] true)
   (children [this] this)
-  (make-node [this children] (vec children)))
+  (make-node [this children] (vec children))
+  ;; ignore maps
+  clojure.lang.PersistentArrayMap
+  (branch? [this] false)
+  (children [this] nil)
+  (make-node [this children] nil))
 
 (extend-protocol ASTNode
   java.lang.String
@@ -108,7 +113,9 @@
   clojure.lang.PersistentVector
   (render [this sb context-stack]
     (doseq [node this]
-      (render node sb context-stack))))
+      (render node sb context-stack)))
+  clojure.lang.PersistentArrayMap
+  (render [this sb context-stack] sb))
 
 ;; Implement a Zipper over ASTZippers.
 
