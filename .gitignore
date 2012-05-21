@@ -7,3 +7,5 @@ classes
 build
 /stencil
 test/spec
+/resources
+/target

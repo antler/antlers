@@ -186,12 +186,6 @@
                     template-variant
                     (variant-fn template-src))))))))
 
-;; This is stupid. Clojure can't do circular dependencies between namespaces
-;; at all. Partials need access to load to do what they are supposed to do.
-;; But loader depends on parser, parser depends on ast, and to implement, ast
-;; would have to depend on loader. So instead of doing what Clojure wants you
-;; to do, and jam it all into one huge file, we're going to just implement
-;; ASTNode for Partial here.
 (extend-protocol ASTNode
   stencil.ast.Partial
   (render [this sb context-stack]
@@ -201,3 +195,4 @@
                      (load (:name this)))]
       (when template
         (render template sb context-stack)))))
+

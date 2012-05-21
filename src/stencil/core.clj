@@ -1,6 +1,5 @@
 (ns stencil.core
-  (:require [clojure.string :as string]
-            [stencil.loader :as loader])
+  (:require [clojure.string :as string])
   (:use [stencil.parser :exclude [partial]]
         [stencil.ast :rename {render node-render
                            partial node-partial}]
@@ -10,8 +9,8 @@
 (declare render)
 (declare render-string)
 
-;; This is stupid. Clojure can't do circular dependencies between namespaces
-;; at all. Some types need access to render/render-string to do what they are
+;; Clojure can't do circular dependencies between namespaces.
+;; Some types need access to render/render-string to do what they are
 ;; supposed to do. But render-string depends on parser, parser depends on ast,
 ;; and to implement, ast would have to depend on core. So instead of doing what
 ;; Clojure wants you to do, and jam it all into one huge file, we're going to
@@ -42,6 +41,11 @@
             ;; Non-false non-list value -> Display content once.
             :else
             (node-render (:contents this) sb (conj context-stack ctx-val)))))
+
+  stencil.ast.Block
+  (render [this ^StringBuilder sb context-stack]
+    (node-render (:contents this) sb context-stack))
+
   stencil.ast.EscapedVariable
   (render [this ^StringBuilder sb context-stack]
     (if-let [value (context-get context-stack (:name this))]
@@ -50,6 +54,7 @@
                                                 (first context-stack))))
         ;; Otherwise, just append its html-escaped value by default.
         (.append sb (html-escape value)))))
+
   stencil.ast.UnescapedVariable
   (render [this ^StringBuilder sb context-stack]
     (if-let [value (context-get context-stack (:name this))]
@@ -71,7 +76,7 @@
   "Given a template name (string) and map of args, loads and renders the named
    template."
   [template-name data-map]
-  (render (loader/load template-name) data-map))
+  (render (load-template template-name) data-map))
 
 (defn render-string
   "Renders a given string containing the source of a template and a map

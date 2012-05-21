@@ -16,8 +16,11 @@
                               and a seq of children that should totally replace
                               the existing children, make the new node."))
 
+;; ASTNode IS implemented, but not here. To avoid Clojure's circular
+;; dependency inadequacies, we have to implement ASTNode at the top of
+;; core.clj.
 (defprotocol ASTNode
-  (render [this ^StrinbBuilder sb context-stack]
+  (render [this ^StringBuilder sb context-stack]
     "Given a StringBuilder and the current context-stack, render this node to
      the result string in the StringBuilder."))
 
@@ -32,11 +35,16 @@
   (branch? [this] true)
   (children [this] contents)
   (make-node [this children] (Section. name attrs (vec children))))
-;; ASTNode IS implemented, but not here. To avoid Clojure's circular
-;; dependency inadequacies, we have to implement ASTNode at the top of
-;; core.clj.
 (defn section [name attrs contents]
   (Section. name attrs contents))
+
+(defrecord Block [name attrs contents]
+  ASTZipper
+  (branch? [this] true)
+  (children [this] contents)
+  (make-node [this children] (Block. name attrs (vec children))))
+(defn block [name attrs content]
+  (Block. name attrs content))
 
 (defrecord InvertedSection [name attrs contents]
   ASTZipper
@@ -66,9 +74,6 @@
   (branch? [this] false)
   (children [this] nil)
   (make-node [this children] nil))
-;; ASTNode IS implemented, but not here. To avoid Clojure's circular
-;; dependency inadequacies, we have to implement ASTNode at the end of
-;; loader.clj.
 (defn partial [name padding] (Partial. name padding))
 
 (defrecord EscapedVariable [name]
@@ -76,9 +81,6 @@
   (branch? [this] false)
   (children [this] nil)
   (make-node [this children] nil))
-;; ASTNode IS implemented, but not here. To avoid Clojure's circular
-;; dependency inadequacies, we have to implement ASTNode at the top of
-;; core.clj.
 (defn escaped-variable [name] (EscapedVariable. name))
 
 (defrecord UnescapedVariable [name]
@@ -86,9 +88,6 @@
   (branch? [this] false)
   (children [this] nil)
   (make-node [this children] nil))
-;; ASTNode IS implemented, but not here. To avoid Clojure's circular
-;; dependency inadequacies, we have to implement ASTNode at the top of
-;; core.clj.
 (defn unescaped-variable [name] (UnescapedVariable. name))
 
 (extend-protocol ASTZipper
