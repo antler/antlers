@@ -117,7 +117,7 @@
   clojure.lang.PersistentVector
   (render [this sb context-stack]
     (dotimes [i (count this)]
-      (render (nth this i) sb context-stack))))
+      (render (nth this i) sb context-stack)))
   ;; (render [this ^StringBuilder sb context-stack]
   ;;   (doseq [node this]
   ;;     (render node sb context-stack)))

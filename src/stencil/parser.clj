@@ -8,6 +8,7 @@
            java.util.Date)
   (:use [stencil ast re-utils utils]
         [clojure.java.io :only [resource]]
+        [quoin.text :as qtext]
         clojure.pprint
         [slingshot.slingshot :only [throw+]]))
 
@@ -446,13 +447,13 @@
   "Allows one to register a template in the dynamic template store. Give the
    template a name and provide its content as a string."
   [template-name content-string]
-  (swap! dynamic-template-store assoc-fuzzy template-name content-string)
+  (swap! dynamic-template-store assoc template-name content-string)
   (invalidate-cache-entry template-name))
 
 (defn unregister-template
   "Removes the template with the given name from the dynamic template store."
   [template-name]
-  (swap! dynamic-template-store dissoc-fuzzy template-name)
+  (swap! dynamic-template-store dissoc template-name)
   (invalidate-cache-entry template-name))
 
 (defn unregister-all-templates
@@ -489,8 +490,8 @@
    template-variant. The first key (template-name) is fuzzy, the variant is
    not."
   [map [template-name template-variant] val]
-  (let [template-variants (get-fuzzy map template-name)]
-    (assoc-fuzzy map template-name (assoc template-variants
+  (let [template-variants (get map template-name)]
+    (assoc map template-name (assoc template-variants
                                      template-variant val))))
 
 (defn cache
@@ -509,7 +510,7 @@
   "Given a template name, invalidates the cache entry for that name, if there
    is one."
   [template-name]
-  (swap! parsed-template-cache dissoc-fuzzy template-name))
+  (swap! parsed-template-cache dissoc template-name))
 
 (defn invalidate-cache
   "Clears all entries out of the cache."
@@ -524,7 +525,7 @@
   ([template-name]
      (cache-get template-name nil))
   ([template-name template-variant]
-     (let [cache-entry (get (get-fuzzy @parsed-template-cache template-name)
+     (let [cache-entry (get (get @parsed-template-cache template-name)
                             template-variant)]
        (when (and (not (nil? cache-entry))
                   (@cache-policy cache-entry))
@@ -556,7 +557,7 @@
      (if-let [cached (cache-get template-name template-variant)]
        (:parsed cached)
        ;; It wasn't cached, so we have to load it. Try dynamic store first.
-       (if-let [dynamic-src (get-fuzzy @dynamic-template-store template-name)]
+       (if-let [dynamic-src (get @dynamic-template-store template-name)]
          ;; If found, parse and cache it, then return it.
          (cache template-name template-variant (variant-fn dynamic-src))
          ;; Otherwise, try to load it from disk.
@@ -571,7 +572,7 @@
   (render [this sb context-stack]
     (let [padding (:padding this)
           template (if padding
-                     (load-template (:name this) padding #(indent-string % padding))
+                     (load-template (:name this) padding #(qtext/indent-string % padding))
                      (load-template (:name this)))]
       (when template
         (render template sb context-stack)))))
