@@ -2,7 +2,8 @@
   (:require [clojure.string :as string])
   (:use [stencil.parser :exclude [partial]]
         [stencil.ast :rename {render node-render
-                           partial node-partial}]
+                              partial node-partial}]
+        [quoin.text :as qtext]
         [clojure.java.io :only [resource]]
         stencil.utils))
 
@@ -31,13 +32,15 @@
               (node-render (:contents this) sb (conj context-stack val)))
             ;; Callable value -> Invoke it with the literal block of src text.
             (instance? clojure.lang.Fn ctx-val)
-            (let [lambda-return (ctx-val (:content (:attrs this)))]
+            (let [current-context (first context-stack)
+                  lambda-return (call-lambda ctx-val (:content (:attrs this))
+                                             current-context)]
               ;; We have to manually parse because the spec says lambdas in
               ;; sections get parsed with the current parser delimiters.
               (.append sb (render (parse lambda-return
                                          (select-keys (:attrs this)
                                                       [:tag-open :tag-close]))
-                                         (first context-stack))))
+                                         current-context)))
             ;; Non-false non-list value -> Display content once.
             :else
             (node-render (:contents this) sb (conj context-stack ctx-val)))))
@@ -50,16 +53,20 @@
   (render [this ^StringBuilder sb context-stack]
     (if-let [value (context-get context-stack (:name this))]
       (if (instance? clojure.lang.Fn value)
-        (.append sb (html-escape (render-string (str (value))
-                                                (first context-stack))))
+        (.append sb (qtext/html-escape
+                     (render-string (str (call-lambda value
+                                                      (first context-stack)))
+                                    (first context-stack))))
         ;; Otherwise, just append its html-escaped value by default.
-        (.append sb (html-escape value)))))
+        (.append sb (qtext/html-escape (str value))))))
 
   stencil.ast.UnescapedVariable
   (render [this ^StringBuilder sb context-stack]
     (if-let [value (context-get context-stack (:name this))]
       (if (instance? clojure.lang.Fn value)
-        (.append sb (render-string (str (value)) (first context-stack)))
+        (.append sb (render-string (str (call-lambda value
+                                                     (first context-stack)))
+                                   (first context-stack)))
         ;; Otherwise, just append its value.
         (.append sb value)))))
 

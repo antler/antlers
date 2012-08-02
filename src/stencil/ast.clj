@@ -115,9 +115,12 @@
   java.lang.String
   (render [this ^StringBuilder sb context-stack] (.append sb this))
   clojure.lang.PersistentVector
-  (render [this ^StringBuilder sb context-stack]
-    (doseq [node this]
-      (render node sb context-stack)))
+  (render [this sb context-stack]
+    (dotimes [i (count this)]
+      (render (nth this i) sb context-stack))))
+  ;; (render [this ^StringBuilder sb context-stack]
+  ;;   (doseq [node this]
+  ;;     (render node sb context-stack)))
   clojure.lang.PersistentArrayMap
   (render [this ^StringBuilder sb context-stack] sb)
   nil

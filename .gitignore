@@ -9,3 +9,5 @@ build
 test/spec
 /resources
 /target
+.lein-*
+
