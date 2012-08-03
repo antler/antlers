@@ -27,3 +27,7 @@
 (deftest eval-test
   (is (= "9ccc"
          (render-string "{{(* 3 3)}}{{# (= vv \"yoyo\")}}bbb{{/ (= vv \"yoyo\")}}{{^ (= vv \"yoyo\")}}ccc{{/ (= vv \"yoyo\")}}" {:xxx 3 :vv "xixix"}))))
+
+(deftest list-test
+  (is (= "12345"
+         (render-string "{{# (take 5 (iterate inc 1))}}{{.}}{{/ (take 5 (iterate inc 1))}}" {}))))
