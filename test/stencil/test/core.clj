@@ -19,3 +19,11 @@
   (register-template "base" base)
   (is (= "xyz"
          (render-string "{{< base}}{{%yellow}}{{yyy}}{{/yellow}}" {:yyy "y"}))))
+
+(deftest clj-test
+  (is (= "6bbb"
+         (render-string "{{(+ 3 3)}}{{# (> xxx 2)}}bbb{{/ (> xxx 2)}}" {:xxx 3}))))
+
+(deftest eval-test
+  (is (= "9ccc"
+         (render-string "{{(* 3 3)}}{{# (= vv \"yoyo\")}}bbb{{/ (= vv \"yoyo\")}}{{^ (= vv \"yoyo\")}}ccc{{/ (= vv \"yoyo\")}}" {:xxx 3 :vv "xixix"}))))

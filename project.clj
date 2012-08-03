@@ -1,4 +1,4 @@
-(defproject antler/stencil "0.3.1"
+(defproject antler/stencil "0.3.2"
   :description "Mustache in Clojure (with blocks!)"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [scout "0.1.0"]

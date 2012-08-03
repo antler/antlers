@@ -117,9 +117,14 @@
    iterator. If not, it splits it on periods, returning a list of
    the pieces. See interpolation.yml in the spec."
   [^String s]
-  (if (= "." s)
-    :implicit-top
-    (doall (map keyword (string/split s #"\.")))))
+  (cond
+   (= "." s) :implicit-top
+   (re-find #"^\(" s) {:clojure s}
+   :else (doall (map keyword (string/split s #"\.")))))
+
+  ;; (if (= "." s)
+  ;;   :implicit-top
+  ;;   (doall (map keyword (string/split s #"\.")))))
 
 (defn parse-text
   "Given a parser that is not in tag position, reads text until it is and
@@ -191,18 +196,19 @@
         sigil-scanner (scan/scan sigil-scanner #"\s*")
         ;; Scan the tag content, taking into account the content allowed by
         ;; this type of tag.
-        tag-content-scanner (if (freeform-tag-sigils sigil)
+        tag-content-scanner ;; (if (freeform-tag-sigils sigil)
                               (scan/skip-to-match-start
                                sigil-scanner
                                (re-concat #"\s*"
                                           (re-quote (closing-sigil sigil)) "?"
                                           (re-quote (:tag-close state))))
                               ;; Otherwise, restrict tag content.
-                              (scan/scan sigil-scanner
-                                         valid-tag-content))
+                              ;; (scan/scan sigil-scanner
+                              ;;            valid-tag-content))
         tag-content (subs (:src scanner)
                           (scan/position sigil-scanner)
                           (scan/position tag-content-scanner))
+
         ;; Finish the tag: any trailing whitespace, closing sigils, and tag end.
         ;; Done separately so they can succeed/fail independently.
         tag-content-scanner (scan/scan (scan/scan tag-content-scanner #"\s*")
@@ -244,6 +250,7 @@
                                         (unescaped-variable
                                          (parse-tag-name tag-content)))
                       state)
+
       \%
       (let [b (block (parse-tag-name tag-content)
                      {:content-start
@@ -256,6 +263,7 @@
         (parser scanner
                 (insert-block output b)
                 state))
+
       \# (parser scanner
                  (-> output
                      (zip/append-child
@@ -273,6 +281,7 @@
                                []))
                      zip/down zip/rightmost)
                  state)
+
       \^ (parser scanner
                  (-> output
                      (zip/append-child
@@ -285,6 +294,7 @@
                                         []))
                      zip/down zip/rightmost)
                  state)
+
       \/ (let [top-section (zip/node output)] ;; Do consistency checks...
            (if (not= (:name top-section) (parse-tag-name tag-content))
              (throw+ {:type :mismatched-closing-tag
