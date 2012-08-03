@@ -27,14 +27,16 @@
       ;; unsuccessful in finding the key.
       nil)))
 
-(defn symbolize-keys
-  [[k v]]
-  (list (symbol (name k)) v))
+(declare ^:dynamic *locals*)
 
 (defn eval-with-map
-  [bindings form]
-  (eval
-   `(let ~(vec (mapcat symbolize-keys bindings)) ~(read-string form))))
+  "Evals a form with given locals.  The locals should be a map of symbols to
+  values."
+  [locals form]
+  (binding [*locals* locals]
+    (eval
+     `(let ~(vec (mapcat #(list (symbol (name %)) `(*locals* '~%)) (keys locals)))
+        ~(read-string form)))))
 
 (defn context-get
   "Given a context stack and key, implements the rules for getting the
