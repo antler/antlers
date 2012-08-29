@@ -31,3 +31,7 @@
 (deftest list-test
   (is (= "12345"
          (render-string "{{# (take 5 (iterate inc 1))}}{{.}}{{/ (take 5 (iterate inc 1))}}" {}))))
+
+(deftest this-test
+  (is (= "1491625"
+         (render-string "{{#yellow}}{{(* this this)}}{{/yellow}}" {:yellow [1 2 3 4 5]}))))

@@ -38,6 +38,15 @@
      `(let ~(vec (mapcat #(list (symbol (name %)) `(*locals* '~%)) (keys locals)))
         ~(read-string form)))))
 
+(defn merge-contexts
+  [context]
+  (let [top (first context)
+        stack (rest context)
+        fused (apply merge (reverse stack))]
+    (if (map? top)
+      (merge fused top)
+      (assoc fused :this top))))
+
 (defn context-get
   "Given a context stack and key, implements the rules for getting the
    key out of the context stack (see interpolation.yml in the spec). The
@@ -53,7 +62,7 @@
       ;; Check to see if the tag contains clojure code, and if so, eval it in the
       ;; given context.
       (contains? key :clojure)
-      (eval-with-map (apply merge context-stack) (get key :clojure))
+      (eval-with-map (merge-contexts context-stack) (get key :clojure))
 
       :else
       ;; Walk down the context stack until we find one that has the
