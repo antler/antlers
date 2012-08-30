@@ -118,9 +118,9 @@
    the pieces. See interpolation.yml in the spec."
   [^String s]
   (cond
-   (= "." s) :implicit-top
+   (or (= "." s) (= "this" s)) :implicit-top
    (re-find #"^\(" s) {:clojure s}
-   :else (doall (map keyword (string/split s #"\.")))))
+   :else (doall (map keyword (string/split s #"\.:?| +:?")))))
 
   ;; (if (= "." s)
   ;;   :implicit-top

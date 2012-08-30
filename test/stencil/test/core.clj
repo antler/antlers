@@ -33,5 +33,8 @@
          (render-string "{{# (take 5 (iterate inc 1))}}{{.}}{{/ (take 5 (iterate inc 1))}}" {}))))
 
 (deftest this-test
-  (is (= "1491625"
-         (render-string "{{#yellow}}{{(* this this)}}{{/yellow}}" {:yellow [1 2 3 4 5]}))))
+  (is (= "1 14 29 316 425 5"
+         (render-string "{{#yellow}}{{(* this this)}} {{this}}{{/yellow}}" {:yellow [1 2 3 4 5]}))))
+
+(deftest spaces-test
+  (is (= "55555" (render-string "{{yellow :ochre.:window     chasm}}" {:yellow {:ochre {:window {:chasm 55555}}}}))))
