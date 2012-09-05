@@ -60,6 +60,7 @@
       ;; Per the spec, a function is truthy, so we should not render.
       (if (and (not (instance? clojure.lang.Fn ctx-val))
                (or (not ctx-val)
+                   (= "" ctx-val)
                    (and (sequential? ctx-val)
                         (empty? ctx-val))))
         (render contents sb context-stack)))))

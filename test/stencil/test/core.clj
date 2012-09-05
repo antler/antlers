@@ -38,3 +38,6 @@
 
 (deftest spaces-test
   (is (= "55555" (render-string "{{yellow :ochre.:window     chasm}}" {:yellow {:ochre {:window {:chasm 55555}}}}))))
+
+(deftest empty-string-test
+  (is (= "hello albatross" (render-string "hello {{#bbb}}WTF{{/bbb}}{{^bbb}}albatross{{/bbb}}" {:bbb ""}))))

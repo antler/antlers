@@ -22,6 +22,7 @@
   (render [this ^StringBuilder sb context-stack]
     (let [ctx-val (context-get context-stack (:name this))]
       (cond (or (not ctx-val) ;; "False" or the empty list -> do nothing.
+                (= "" ctx-val)
                 (and (sequential? ctx-val)
                      (empty? ctx-val)))
             nil
