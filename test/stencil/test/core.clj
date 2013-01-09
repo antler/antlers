@@ -41,3 +41,6 @@
 
 (deftest empty-string-test
   (is (= "hello albatross" (render-string "hello {{#bbb}}WTF{{/bbb}}{{^bbb}}albatross{{/bbb}}" {:bbb ""}))))
+
+(deftest partial-test
+  (is (= "hello hello what?\n" (render-string "hello {{> [[partial-name]].html }}" {:partial-name "yellow" :hello "hello"}))))

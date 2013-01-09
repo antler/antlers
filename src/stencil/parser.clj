@@ -27,13 +27,15 @@
 (defn closing-sigil
   "Given a sigil (char), returns what its closing sigil could possibly be."
   [sigil]
-  (if (= \{ sigil)
-    \}
+  (condp = sigil
+    \{ \}
+    \[ \]
     sigil))
 
-(def valid-tag-content #"(\w|[?!/.%-])*")
+(def valid-tag-content #"(\w|[?!/.%-\[\]])*")
 
 (def parser-defaults {:tag-open "{{" :tag-close "}}"})
+(def partial-defaults {:tag-open "[[" :tag-close "]]"})
 
 ;; The main parser data structure. The only tricky bit is the output, which is
 ;; a zipper. The zipper is kept in a state where new things are added with
@@ -154,6 +156,12 @@
               state))))
 
 (declare load-template)
+(declare parse)
+(defn render-partial
+  [string context-stack]
+  (let [sb (StringBuilder.)]
+    (render (parse string partial-defaults) sb context-stack)
+    (.toString sb)))
 
 (defn find-block
   [output block]
@@ -334,9 +342,10 @@
                  (-> output
                      ;; A standalone partial instead holds onto its
                      ;; padding and uses it to indent its sub-template.
-                     (zip/append-child (partial tag-content
-                                                (if strip-whitespace?
-                                                  padding))))
+                     (zip/append-child
+                      (partial tag-content
+                               (if strip-whitespace?
+                                 padding))))
                  state)
 
       \< (parser scanner
@@ -581,9 +590,11 @@
   stencil.ast.Partial
   (render [this sb context-stack]
     (let [padding (:padding this)
+          partial-name (render-partial (:name this) context-stack)
+          _ (println partial-name)
           template (if padding
-                     (load-template (:name this) padding #(qtext/indent-string % padding))
-                     (load-template (:name this)))]
+                     (load-template partial-name padding #(qtext/indent-string % padding))
+                     (load-template partial-name))]
       (when template
         (render template sb context-stack)))))
 
