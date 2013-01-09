@@ -37,10 +37,18 @@
          (render-string "{{#yellow}}{{(* this this)}} {{this}}{{/yellow}}" {:yellow [1 2 3 4 5]}))))
 
 (deftest spaces-test
-  (is (= "55555" (render-string "{{yellow :ochre.:window     chasm}}" {:yellow {:ochre {:window {:chasm 55555}}}}))))
+  (is (= "55555" (render-string "{{yellow.:ochre.:window.chasm}}" {:yellow {:ochre {:window {:chasm 55555}}}}))))
 
 (deftest empty-string-test
   (is (= "hello albatross" (render-string "hello {{#bbb}}WTF{{/bbb}}{{^bbb}}albatross{{/bbb}}" {:bbb ""}))))
 
 (deftest partial-test
   (is (= "hello hello what?\n" (render-string "hello {{> [[partial-name]].html }}" {:partial-name "yellow" :hello "hello"}))))
+
+(deftest lambda-test
+  (is (= "purple YEAHEYAH WTF" (render-string "purple {{cronge}}" {:cronge #(str (:okay %) " WTF") :okay "YEAHEYAH"}))))
+
+(deftest lambda-boolean-test
+  (is (= "chartreuse nononon"
+         (render-string "chartreuse {{#ipip.bul nonon.elb olol}}nononon{{/ipip.bul nonon.elb olol}}"
+                        {:ipip {:bul (fn [env nonon olol] (= olol nonon))} :nonon {:elb "gold"} :olol "gold"}))))

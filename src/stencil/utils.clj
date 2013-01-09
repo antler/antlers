@@ -52,35 +52,45 @@
    key out of the context stack (see interpolation.yml in the spec). The
    key is assumed to be either the special keyword :implicit-top, or a list of
    strings or keywords."
-  ([context-stack key]
-     (context-get context-stack key nil))
-  ([context-stack key not-found]
+  ([context-stack path]
+     (context-get context-stack path nil))
+  ([context-stack path not-found]
      ;; First need to check for an implicit top reference.
      (cond
-      (.equals :implicit-top key) (first context-stack) ;; .equals is faster than =
+      (.equals :implicit-top path) (first context-stack) ;; .equals is faster than =
 
       ;; Check to see if the tag contains clojure code, and if so, eval it in the
       ;; given context.
-      (contains? key :clojure)
-      (eval-with-map (merge-contexts context-stack) (get key :clojure))
+      (contains? path :clojure)
+      (eval-with-map (merge-contexts context-stack) (get path :clojure))
 
       :else
       ;; Walk down the context stack until we find one that has the
       ;; first part of the key.
-      (if-let [matching-context (find-containing-context context-stack
-                                                         (first key))]
-        ;; If we found a matching context and there are still segments of the
-        ;; key left, we repeat the process using only the matching context as
-        ;; the context stack.
-        (if (next key)
-          (recur (list (map/get-named matching-context
-                                      (first key))) ;; Singleton ctx stack.
-                 (next key)
-                 not-found)
-          ;; Otherwise, we found the item!
-          (map/get-named matching-context (first key)))
-        ;; Didn't find a matching context.
-        not-found))))
+      (loop [stack context-stack
+             key (first path)
+             not-found not-found]
+        (if-let [matching-context
+                 (find-containing-context
+                  stack
+                  (first key))]
+          ;; If we found a matching context and there are still segments of the
+          ;; key left, we repeat the process using only the matching context as
+          ;; the context stack.
+          (if (next key)
+            (recur (list (map/get-named matching-context
+                                        (first key))) ;; Singleton ctx stack.
+                   (next key)
+                   not-found)
+            ;; Otherwise, we found the item!
+            (let [value (map/get-named matching-context (first key))]
+              (if (instance? clojure.lang.Fn value)
+                (let [merged (merge-contexts context-stack)
+                      args (map #(get-in merged %) (rest path))]
+                  (apply value (cons merged args)))
+                value)))
+          ;; Didn't find a matching context.
+          not-found)))))
 
 (defn call-lambda
   "Calls a lambda function, respecting the options given in its metadata, if

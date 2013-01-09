@@ -13,16 +13,16 @@
 (deftest test-context-get
   (is (= "success"
          (context-get '({:a "success"})
-                      ["a"])))
+                      '(("a")))))
   (is (= "success"
          (context-get '({:a {:b "success"}})
-                      ["a" :b])))
+                      '(("a" :b)))))
   (is (= "success"
          (context-get '({:b 1} {:a "success"})
-                      ["a"])))
+                      '(("a")))))
   (is (= "failure"
          (context-get '({:a "problem?"} {:a {:b "success"}})
-                      ["a" "b"] "failure"))))
+                      '(("a" "b")) "failure"))))
 
 (deftest test-pass-context
   (is (= "foo" (call-lambda (fn [] "foo") nil)))
