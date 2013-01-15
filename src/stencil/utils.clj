@@ -41,7 +41,7 @@
 (defn merge-contexts
   [context]
   (let [top (first context)
-        stack (rest context)
+        stack (filter map? (rest context))
         fused (apply merge (reverse stack))]
     (if (map? top)
       (merge fused top)
