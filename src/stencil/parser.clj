@@ -112,11 +112,6 @@
     (not= (scan/position (scan/scan s tag-open-re))
           (scan/position s))))
 
-(defn split-name
-  [s]
-  (doall
-   (map keyword (string/split s #"\.:?| +:?"))))
-
 (defn parse-tag-name
   "This function takes a tag name (string) and parses it into a run-time data
    structure useful during rendering of the templates. Following the rules of
@@ -128,16 +123,11 @@
    (or (= "." s) (= "this" s)) :implicit-top
    (re-find #"^\(" s) {:clojure s}
    :else
-   (let [explode (doall (map split-name (string/split (string/trim s) #" +")))]
-     explode)))
-
-;; (split-name s) ;; (doall
-          ;; (map keyword (string/split s #"\.:?| +:?")))))
-
-  ;; (if (= "." s)
-  ;;   :implicit-top
-  ;;   (doall (map keyword (string/split s #"\.")))))
-
+   (let [trimmed (string/trim s)
+         unread (str \( trimmed \))
+         symbols (read-string unread)]
+     symbols)))
+         
 (defn parse-text
   "Given a parser that is not in tag position, reads text until it is and
    appends it to the output of the parser."

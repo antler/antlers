@@ -37,7 +37,7 @@
          (render-string "{{#yellow}}{{(* this this)}} {{this}}{{/yellow}}" {:yellow [1 2 3 4 5]}))))
 
 (deftest spaces-test
-  (is (= "55555" (render-string "{{yellow.:ochre.:window.chasm}}" {:yellow {:ochre {:window {:chasm 55555}}}}))))
+  (is (= "55555" (render-string "{{yellow.ochre.window.chasm}}" {:yellow {:ochre {:window {:chasm 55555}}}}))))
 
 (deftest empty-string-test
   (is (= "hello albatross" (render-string "hello {{#bbb}}WTF{{/bbb}}{{^bbb}}albatross{{/bbb}}" {:bbb ""}))))
@@ -52,3 +52,15 @@
   (is (= "chartreuse nononon"
          (render-string "chartreuse {{#ipip.bul nonon.elb olol}}nononon{{/ipip.bul nonon.elb olol}}"
                         {:ipip {:bul (fn [env nonon olol] (= olol nonon))} :nonon {:elb "gold"} :olol "gold"}))))
+
+(deftest nested-map-test
+  (is
+   (=
+    "Hello green YES yellow"
+    (render-string
+     "Hello {{map-pusher params {:over \"yellow\" :under red.okay} }}"
+     {:params {:green "green" :over "iiggp" :under "what"}
+      :red {:okay "YES"}
+      :map-pusher (fn [env params additional]
+                    (let [merged (merge params additional)]
+                      (str (:green merged) " " (:under merged) " " (:over merged))))}))))

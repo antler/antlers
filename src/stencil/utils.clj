@@ -1,5 +1,6 @@
 (ns stencil.utils
-  (:require [clojure.string :as str]
+  (:require [clojure.string :as string]
+            [clojure.walk :as walk]
             [quoin.map-access :as map]))
 
 ;;
@@ -47,6 +48,45 @@
       (merge fused top)
       (assoc fused :this top))))
 
+(defn split-name
+  [s]
+  (doall
+   (map keyword (string/split s #"\."))))
+
+(defn split-symbol
+  [s]
+  (if (symbol? s)
+    (split-name (str s))
+    s))
+
+(defn nested-get
+  ([full-stack sym]
+     (nested-get full-stack sym nil))
+  ([full-stack sym not-found]
+     (let [full-path (split-symbol sym)]
+       (loop [stack full-stack
+              path full-path]
+         (if-let [matching-context (find-containing-context stack (first path))]
+           (let [found (map/get-named matching-context (first path))
+                 continuing (next path)]
+             (if continuing
+               (recur (list found) (rest path))
+               found))
+           not-found)))))
+
+(defn draw-context
+  [context not-found]
+  (fn [leaf]
+    (if (symbol? leaf)
+      (nested-get context leaf not-found)
+      leaf)))
+
+(defn contextualize-tree
+  [context tree not-found]
+  (let [draw (draw-context context not-found)
+        walked (walk/postwalk draw tree)]
+    walked))
+
 (defn context-get
   "Given a context stack and key, implements the rules for getting the
    key out of the context stack (see interpolation.yml in the spec). The
@@ -55,42 +95,21 @@
   ([context-stack path]
      (context-get context-stack path nil))
   ([context-stack path not-found]
-     ;; First need to check for an implicit top reference.
      (cond
       (.equals :implicit-top path) (first context-stack) ;; .equals is faster than =
 
-      ;; Check to see if the tag contains clojure code, and if so, eval it in the
-      ;; given context.
-      (contains? path :clojure)
+      (contains? path :clojure) ;; are we evaling clojure code?
       (eval-with-map (merge-contexts context-stack) (get path :clojure))
 
       :else
-      ;; Walk down the context stack until we find one that has the
-      ;; first part of the key.
-      (loop [stack context-stack
-             key (first path)
-             not-found not-found]
-        (if-let [matching-context
-                 (find-containing-context
-                  stack
-                  (first key))]
-          ;; If we found a matching context and there are still segments of the
-          ;; key left, we repeat the process using only the matching context as
-          ;; the context stack.
-          (if (next key)
-            (recur (list (map/get-named matching-context
-                                        (first key))) ;; Singleton ctx stack.
-                   (next key)
-                   not-found)
-            ;; Otherwise, we found the item!
-            (let [value (map/get-named matching-context (first key))]
-              (if (instance? clojure.lang.Fn value)
-                (let [merged (merge-contexts context-stack)
-                      args (map #(get-in merged %) (rest path))]
-                  (apply value (cons merged args)))
-                value)))
-          ;; Didn't find a matching context.
-          not-found)))))
+      (let [defined (contextualize-tree context-stack path not-found)
+            front (first defined)]
+        (if (instance? clojure.lang.Fn front)
+          (let [merged (merge-contexts context-stack)
+                args (rest defined)
+                result (apply front (cons merged args))]
+            result)
+          front)))))
 
 (defn call-lambda
   "Calls a lambda function, respecting the options given in its metadata, if
