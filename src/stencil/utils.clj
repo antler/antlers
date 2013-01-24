@@ -105,9 +105,8 @@
       (let [defined (contextualize-tree context-stack path not-found)
             front (first defined)]
         (if (instance? clojure.lang.Fn front)
-          (let [merged (merge-contexts context-stack)
-                args (rest defined)
-                result (apply front (cons merged args))]
+          (let [args (rest defined)
+                result (apply front args)]
             result)
           front)))))
 

@@ -46,12 +46,12 @@
   (is (= "hello hello what?\n" (render-string "hello {{> [[partial-name]].html }}" {:partial-name "yellow" :hello "hello"}))))
 
 (deftest lambda-test
-  (is (= "purple YEAHEYAH WTF" (render-string "purple {{cronge}}" {:cronge #(str (:okay %) " WTF") :okay "YEAHEYAH"}))))
+  (is (= "purple YEAHEYAH WTF" (render-string "purple {{cronge okay}}" {:cronge #(str % " WTF") :okay "YEAHEYAH"}))))
 
 (deftest lambda-boolean-test
   (is (= "chartreuse nononon"
          (render-string "chartreuse {{#ipip.bul nonon.elb olol}}nononon{{/ipip.bul nonon.elb olol}}"
-                        {:ipip {:bul (fn [env nonon olol] (= olol nonon))} :nonon {:elb "gold"} :olol "gold"}))))
+                        {:ipip {:bul (fn [nonon olol] (= olol nonon))} :nonon {:elb "gold"} :olol "gold"}))))
 
 (deftest nested-map-test
   (is
@@ -61,6 +61,6 @@
      "Hello {{map-pusher params {:over \"yellow\" :under red.okay} }}"
      {:params {:green "green" :over "iiggp" :under "what"}
       :red {:okay "YES"}
-      :map-pusher (fn [env params additional]
+      :map-pusher (fn [params additional]
                     (let [merged (merge params additional)]
                       (str (:green merged) " " (:under merged) " " (:over merged))))}))))
