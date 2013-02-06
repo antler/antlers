@@ -55,12 +55,25 @@
 
 (deftest nested-map-test
   (is
-   (=
-    "Hello green YES yellow"
-    (render-string
-     "Hello {{map-pusher params {:over \"yellow\" :under red.okay} }}"
-     {:params {:green "green" :over "iiggp" :under "what"}
-      :red {:okay "YES"}
-      :map-pusher (fn [params additional]
-                    (let [merged (merge params additional)]
-                      (str (:green merged) " " (:under merged) " " (:over merged))))}))))
+   (= "Hello green YES yellow"
+      (render-string
+       "Hello {{map-pusher params {:over \"yellow\" :under red.okay} }}"
+       {:params {:green "green" :over "iiggp" :under "what"}
+        :red {:okay "YES"}
+        :map-pusher (fn [params additional]
+                      (let [merged (merge params additional)]
+                        (str (:green merged) " " (:under merged) " " (:over merged))))}))))
+
+(deftest loop-binding-test
+  (is
+   (= "0a 1b 2c 3d 4e 5f"
+      (render-string
+       "{{#yellow:what}}{{loop.index}}{{what}}{{^loop.last}} {{/loop.last}}{{/yellow:what}}"
+       {:yellow ["a" "b" "c" "d" "e" "f"]}))))
+
+(deftest nested-loop-test
+  (is
+   (= "OUT 0-0a OUT 0-1b OUT 0-2c OUT 0-3d OUT 0-4e OUT 0-5fPLEASE 1-0x PLEASE 1-1y PLEASE 1-2z"
+      (render-string
+       "{{#obly:basis}}{{#yellow:what}}{{basis.ggg}} {{loop.outer.index}}-{{loop.index}}{{what}}{{^loop.last}} {{/loop.last}}{{/yellow:what}}{{/obly:basis}}"
+       {:obly [{:yellow ["a" "b" "c" "d" "e" "f"] :ggg "OUT"} {:yellow ["x" "y" "z"] :ggg "PLEASE"}]}))))

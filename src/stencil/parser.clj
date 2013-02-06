@@ -128,6 +128,17 @@
          symbols (read-string unread)]
      symbols)))
          
+(defn parse-tag-binding
+  [tag-content]
+  (let [tag-name (parse-tag-name tag-content)
+        [seq-name item-binding] (if (seq? tag-name)
+                                  (string/split (str (first tag-name)) #":")
+                                  (list tag-name))
+        tag-name (if (seq? tag-name)
+                   (cons (symbol seq-name) (rest tag-name))
+                   tag-name)]
+    [tag-name item-binding]))
+
 (defn parse-text
   "Given a parser that is not in tag position, reads text until it is and
    appends it to the output of the parser."
@@ -272,23 +283,30 @@
                 (insert-block output b)
                 state))
 
-      \# (parser scanner
-                 (-> output
-                     (zip/append-child
-                      (section (parse-tag-name tag-content)
-                               {:content-start
-                                ;; Need to respect whether to strip white-
-                                ;; space in the source.
-                                (scan/position (if strip-whitespace?
-                                                 trailing-newline-scanner
-                                                 close-scanner))
-                                ;; Lambdas in sections need to parse with
-                                ;; current delimiters.
-                                :tag-open (:tag-open state)
-                                :tag-close (:tag-close state)}
-                               []))
-                     zip/down zip/rightmost)
-                 state)
+      \#
+      (let [[tag-name item-binding] (parse-tag-binding tag-content)]
+            ;; [seq-name item-binding] (if (seq? tag-name)
+            ;;                           (string/split (str (first tag-name)) #":")
+            ;;                           (list tag-name))
+            ;; tag-name (if (seq? tag-name)
+            ;;            (cons (symbol seq-name) (rest tag-name))
+            ;;            tag-name)]
+        (parser scanner
+                (-> output
+                    (zip/append-child
+                     (section tag-name
+                              {:content-start
+                               ;; Need to respect whether to strip white-
+                               ;; space in the source.
+                               (scan/position (if strip-whitespace?
+                                                trailing-newline-scanner
+                                                close-scanner))
+                               :tag-open (:tag-open state)
+                               :tag-close (:tag-close state)
+                               :item-binding (keyword (or item-binding "this"))}
+                              []))
+                    zip/down zip/rightmost)
+                state))
 
       \^ (parser scanner
                  (-> output
@@ -304,7 +322,8 @@
                  state)
 
       \/ (let [top-section (zip/node output)] ;; Do consistency checks...
-           (if (not= (:name top-section) (parse-tag-name tag-content))
+           ;; (if (not= (:name top-section) (parse-tag-name tag-content))
+           (if (not= (:name top-section) (first (parse-tag-binding tag-content)))
              (throw+ {:type :mismatched-closing-tag
                       :tag-content tag-content
                       :scanner tag-content-scanner}
