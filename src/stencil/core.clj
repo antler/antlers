@@ -17,6 +17,19 @@
 ;; Clojure wants you to do, and jam it all into one huge file, we're going to
 ;; just implement ASTNode for some of the ASTNode types here.
 
+(defn build-loop-vars
+  [items item item-binding index items-count stack]
+  (let [outer (or (context-get stack (list 'loop)) {})]
+    {:loop
+     {:outer outer
+      :item item
+      :count items-count
+      :index index
+      :inc-index (inc index)
+      :first (zero? index)
+      :last (>= index (dec items-count))}
+     item-binding item}))
+
 (extend-protocol ASTNode
   stencil.ast.Section
   (render [this ^StringBuilder sb context-stack]
@@ -26,11 +39,23 @@
                 (and (sequential? ctx-val)
                      (empty? ctx-val)))
             nil
+
             ;; Non-empty list -> Display content once for each item in list.
             (sequential? ctx-val)
-            (doseq [val ctx-val]
-              ;; For each render, push the value to top of context stack.
-              (node-render (:contents this) sb (conj context-stack val)))
+            (let [items-count (count ctx-val)
+                  item-binding (-> this :attrs :item-binding)]
+              (loop [items ctx-val
+                     index 0]
+                (if (not (empty? items))
+                  (let [item (first items)
+                        loop-vars (build-loop-vars ctx-val item item-binding index items-count context-stack)]
+                    (node-render (:contents this) sb (conj (conj context-stack loop-vars) item))
+                    (recur (rest items) (inc index))))))
+
+            ;; (doseq [val ctx-val]
+            ;;   ;; For each render, push the value to top of context stack.
+            ;;   (node-render (:contents this) sb (conj context-stack val)))
+
             ;; Callable value -> Invoke it with the literal block of src text.
             (instance? clojure.lang.Fn ctx-val)
             (let [current-context (first context-stack)
