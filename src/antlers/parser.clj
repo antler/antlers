@@ -329,6 +329,8 @@
                       :scanner tag-content-scanner}
                      (str "Attempt to close section out of order: "
                           tag-content
+                          " expected "
+                          (:name top-section)
                           " at "
                           (format-location tag-content-scanner)))
              ;; Going to close it by moving up the zipper tree, but first
