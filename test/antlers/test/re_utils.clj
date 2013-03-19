@@ -1,6 +1,6 @@
-(ns stencil.test.re-utils
+(ns antlers.test.re-utils
   (:use clojure.test
-        stencil.re-utils))
+        antlers.re-utils))
 
 (deftest test-re-concat
   ;; Obviously regular expressions don't have a sensible way of comparing for

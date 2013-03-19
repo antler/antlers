@@ -1,5 +1,5 @@
-(defproject antler/stencil "0.5.0"
-  :description "Mustache in Clojure (with blocks!)"
+(defproject antler/antlers "0.5.0"
+  :description "Swift, robust templating in Clojure"
   :dependencies [[org.clojure/clojure "1.3.0"]
                  [scout "0.1.0"]
                  [quoin "0.1.0"]

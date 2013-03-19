@@ -1,8 +1,8 @@
-(ns stencil.test.parser
+(ns antlers.test.parser
   (:refer-clojure :exclude [partial])
   (:require [clojure.zip :as zip])
   (:use clojure.test
-        [stencil ast parser utils]
+        [antlers ast parser utils]
         [scout.core :rename {peek peep}]))
 
 (deftest test-get-line-col-from-index

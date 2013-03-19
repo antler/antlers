@@ -1,4 +1,4 @@
-(ns stencil.parser
+(ns antlers.parser
   (:refer-clojure :exclude [partial load])
   (:require [scout.core :as scan]
             [clojure.zip :as zip]
@@ -6,7 +6,7 @@
   (:import java.util.regex.Pattern
            scout.core.Scanner
            java.util.Date)
-  (:use [stencil ast re-utils utils]
+  (:use [antlers ast re-utils utils]
         [clojure.java.io :only [resource]]
         [quoin.text :as qtext]
         clojure.pprint
@@ -606,7 +606,7 @@
                     (variant-fn template-src))))))))
 
 (extend-protocol ASTNode
-  stencil.ast.Partial
+  antlers.ast.Partial
   (render [this sb context-stack]
     (let [padding (:padding this)
           partial-name (render-partial (:name this) context-stack)

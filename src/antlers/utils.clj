@@ -1,4 +1,4 @@
-(ns stencil.utils
+(ns antlers.utils
   (:require [clojure.string :as string]
             [clojure.walk :as walk]
             [quoin.map-access :as map]))
@@ -117,13 +117,13 @@
    processing. The latter will be ignored unless metadata directs otherwise.
  
    Respected metadata:
-     - :stencil/pass-context: passes the current context to the lambda as the
+     - :antlers/pass-context: passes the current context to the lambda as the
        second arg."
   ([lambda-fn context]
-     (if (:stencil/pass-context (meta lambda-fn))
+     (if (:antlers/pass-context (meta lambda-fn))
        (lambda-fn context)
        (lambda-fn)))
   ([lambda-fn content context]
-      (if (:stencil/pass-context (meta lambda-fn))
+      (if (:antlers/pass-context (meta lambda-fn))
         (lambda-fn content context)
         (lambda-fn content))))

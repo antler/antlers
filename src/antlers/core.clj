@@ -1,11 +1,11 @@
-(ns stencil.core
+(ns antlers.core
   (:require [clojure.string :as string])
-  (:use [stencil.parser :exclude [partial]]
-        [stencil.ast :rename {render node-render
+  (:use [antlers.parser :exclude [partial]]
+        [antlers.ast :rename {render node-render
                               partial node-partial}]
         [quoin.text :as qtext]
         [clojure.java.io :only [resource]]
-        stencil.utils))
+        antlers.utils))
 
 (declare render)
 (declare render-string)
@@ -31,7 +31,7 @@
      item-binding item}))
 
 (extend-protocol ASTNode
-  stencil.ast.Section
+  antlers.ast.Section
   (render [this ^StringBuilder sb context-stack]
     (let [ctx-val (context-get context-stack (:name this))]
       (cond (or (not ctx-val) ;; "False" or the empty list -> do nothing.
@@ -71,11 +71,11 @@
             :else
             (node-render (:contents this) sb (conj context-stack ctx-val)))))
 
-  stencil.ast.Block
+  antlers.ast.Block
   (render [this ^StringBuilder sb context-stack]
     (node-render (:contents this) sb context-stack))
 
-  stencil.ast.EscapedVariable
+  antlers.ast.EscapedVariable
   (render [this ^StringBuilder sb context-stack]
     (if-let [value (context-get context-stack (:name this))]
       (if (instance? clojure.lang.Fn value)
@@ -86,7 +86,7 @@
         ;; Otherwise, just append its html-escaped value by default.
         (.append sb (qtext/html-escape (str value))))))
 
-  stencil.ast.UnescapedVariable
+  antlers.ast.UnescapedVariable
   (render [this ^StringBuilder sb context-stack]
     (if-let [value (context-get context-stack (:name this))]
       (if (instance? clojure.lang.Fn value)

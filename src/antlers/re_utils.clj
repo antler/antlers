@@ -1,4 +1,4 @@
-(ns stencil.re-utils
+(ns antlers.re-utils
   "Some utility functions to make working with regular expressions easier."
   (:import java.util.regex.Pattern))
 

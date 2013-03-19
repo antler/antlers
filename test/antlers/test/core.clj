@@ -1,7 +1,7 @@
-(ns stencil.test.core
+(ns antlers.test.core
   (:use clojure.test
-        stencil.core
-        stencil.parser))
+        antlers.core
+        antlers.parser))
 
 ;; Test case to make sure we don't get a regression on inverted sections with
 ;; list values for a name.

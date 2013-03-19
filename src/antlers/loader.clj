@@ -1,10 +1,10 @@
-(ns stencil.loader
+(ns antlers.loader
   (:refer-clojure :exclude [load])
   (:use [clojure.java.io :only [resource]]
-        [stencil.parser :exclude [partial]]
-        [stencil.ast :exclude [partial]]
+        [antlers.parser :exclude [partial]]
+        [antlers.ast :exclude [partial]]
         [quoin.text :as qtext]
-        stencil.utils)
+        antlers.utils)
   (:require [clojure.core.cache :as cache]))
 
 ;; The dynamic template store just maps a template name to its source code.
@@ -152,7 +152,7 @@
 ;; to do, and jam it all into one huge file, we're going to just implement
 ;; ASTNode for Partial here.
 (extend-protocol ASTNode
-  stencil.ast.Partial
+  antlers.ast.Partial
   (render [this sb context-stack]
     (let [padding (:padding this)
           template (if padding

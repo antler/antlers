@@ -1,6 +1,6 @@
-(ns stencil.test.utils
+(ns antlers.test.utils
   (:use clojure.test
-        stencil.utils))
+        antlers.utils))
 
 (deftest test-find-containing-context
   (is (= {:a 1}
@@ -26,11 +26,11 @@
 
 (deftest test-pass-context
   (is (= "foo" (call-lambda (fn [] "foo") nil)))
-  (is (= "foo*bar" (call-lambda ^{:stencil/pass-context true}
+  (is (= "foo*bar" (call-lambda ^{:antlers/pass-context true}
                                 (fn [ctx] (str "foo*" (:addition ctx)))
                                 {:addition "bar"})))
   (is (= "foo*" (call-lambda (fn [x] (str x "*")) "foo" nil)))
   (is (= "foo*bar"
-         (call-lambda ^{:stencil/pass-context true}
+         (call-lambda ^{:antlers/pass-context true}
                       (fn [x ctx] (str x "*" (:second-arg ctx)))
                       "foo" {:second-arg "bar"}))))

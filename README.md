@@ -1,22 +1,16 @@
-# Stencil
+# Antlers
 
-A fast, compliant implementation of [Mustache](http://mustache.github.com)
-in Clojure.
+A swift, robust templating system for clojure
 
 ## Introduction
 
-Stencil is a complete implementation of the 
-[Mustache spec](http://github.com/mustache/spec), including the optional
-lambdas.
+Antlers grew out of a plain mustache library called [Stencil](http://github.com/davidsantiago/stencil), but under the strain of heavy use acquired many features that now no longer align with the original mustache philosophy (in particular, lambdas no longer behave like mustache lambdas, though there are many new features as well).  Consider it a superset of mustache, with lambdas that make sense.  
 
-The unit tests for Stencil will automatically pull down the spec
-files using git and run the tests against the current implementation (If you
-want to do this yourself, you can clone the repo and type `lein test`).
-Currently, all spec tests are passing.
+------------------------------------
 
-To learn about the language itself, you should read the language
-[documentation](http://mustache.github.com). The rest of this document will
-focus on the API that Stencil provides.
+
+
+
 
 Like Mustache itself, the interface is very simple, consisting of two main
 functions that will probably do most of what you want.

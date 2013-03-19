@@ -1,7 +1,7 @@
-(ns stencil.test.spec
+(ns antlers.test.spec
   (:use clojure.test
-        stencil.core
-        stencil.parser
+        antlers.core
+        antlers.parser
   (:require [clojure.data.json :as json]
             [clojure.java.shell :as sh]
             [clojure.java.io :as io]))

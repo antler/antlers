@@ -1,8 +1,8 @@
-(ns stencil.ast
+(ns antlers.ast
   (:refer-clojure :exclude [partial])
   (:require [clojure.zip :as zip]
             [clojure.string :as string])
-  (:use stencil.utils))
+  (:use antlers.utils))
 
 ;;
 ;; Data structures
