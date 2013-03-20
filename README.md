@@ -26,7 +26,7 @@ To render the same template over and over again, use render-file (which caches t
 
     --> "Roaming the open taiga!"
 
-This will find a file called "some/resource/dir/roaming" anywhere in your classpath.  
+This will find a file called `some/resource/dir/roaming` anywhere in your classpath.  
 
 To cache the AST for a string, you can register a template with a key and then call `render-file` using that key.  It will behave as if it was loaded from a file:
 
