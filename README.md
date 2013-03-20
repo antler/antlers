@@ -21,12 +21,12 @@ To simply render a string as a template, use `render-string`:
 To render the same template over and over again, use render-file (which caches the parsed AST that can subsequently be reused repeatedly):
 
     (antlers/render-file
-     "some/resource/dir/roaming.txt"
+     "some/resource/dir/roaming"
      {:land "taiga!"})
 
     --> "Roaming the open taiga!"
 
-This will find a file called "roaming" anywhere in your classpath.  
+This will find a file called "some/resource/dir/roaming" anywhere in your classpath.  
 
 To cache the AST for a string, you can register a template with a key and then call `render-file` using that key.  It will behave as if it was loaded from a file:
 
