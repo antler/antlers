@@ -69,12 +69,12 @@ Now, you can have another file called "alternate" which can have totally differe
 Which yields when rendering "alternate":
 
     HEADER
-      This is a more conversational body for the same layout
+      This is a more conversational body for the same layout template
     FOOTER
 
 ## Helper functions
 
-Any function you pass in the rendering map can be used from inside the templates (this is a departure from mustache, which has lambdas which are passed blocks of unrendered text which needs to be rendered inside the lambda...).  This turns out to be very handy:
+Any function you pass in the rendering map can be used from inside the templates (this is a departure from mustache, which has lambdas which are passed blocks of unrendered text which needs to be rendered inside the lambda...)
 
     (antlers/render-string
      "{{inc level}}" 
@@ -82,7 +82,7 @@ Any function you pass in the rendering map can be used from inside the templates
 
      --> 11
 
-A function can be used as a predicate in a conditional block (or anywhere else for that matter):
+This turns out to be very handy!  A function can be used as a predicate in a conditional block (or anywhere else for that matter):
 
     (antlers/render-string
      "{{#even? x}}X IS EVEN{{/even? x}}"
@@ -121,13 +121,13 @@ But what if we want the last one to be emphasized?  This works:
 
 Other loop variables include:
 
-    loop.first  -->  true/false
-    loop.last   -->  true/false
-    loop.item   -->  the current item in the loop
-    loop.index  -->  the current index
-    loop.inc-index  -->  one-based index (useful for things)
-    loop.count  -->  total count of items in this list
-    loop.outer  -->  a reference to any loop variables from an outer loop.  outer can also have an outer, ad infinitum.
+    loop.first       -->  true/false
+    loop.last        -->  true/false
+    loop.item        -->  the current item in the loop
+    loop.index       -->  the current index
+    loop.inc-index   -->  one-based index (useful for things)
+    loop.count       -->  total count of items in this list
+    loop.outer       -->  a reference to any loop variables from an outer loop.  outer can also have an outer, ad infinitum.
 
 ## License
 
