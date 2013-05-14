@@ -18,12 +18,21 @@
 
 
 (def base "x{{%yellow}}{{/yellow}}z")
+(def stack "{{< base}}{{%yellow}}{{%obor}}GAR{{/obor}}MROBAD{{/yellow}}")
 
 (deftest block-test
   (register-template "base" base)
   (is (= "xyz"
          (render-string
           "{{< base}}{{%yellow}}{{yyy}}{{/yellow}}"
+          {:yyy "y"}))))
+
+(deftest nested-block-test
+  (register-template "base" base)
+  (register-template "stack" stack)
+  (is (= "xyz"
+         (render-string
+          "{{< stack}}{{%yellow}}{{yyy}}{{/yellow}}"
           {:yyy "y"}))))
 
 (deftest clj-test
