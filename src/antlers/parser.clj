@@ -176,7 +176,7 @@
 
 (defn find-block
   [output block]
-  (loop [loc (ast-zip output)]
+  (loop [loc (zip/root (ast-zip output))]
     (cond
      (zip/end? loc) false
      (= (:name block) (:name (zip/node loc))) (zip/replace loc block)
