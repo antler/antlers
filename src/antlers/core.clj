@@ -48,8 +48,10 @@
                      index 0]
                 (if (not (empty? items))
                   (let [item (first items)
-                        loop-vars (build-loop-vars ctx-val item item-binding index items-count context-stack)]
-                    (node-render (:contents this) sb (conj (conj context-stack loop-vars) item))
+                        loop-vars (build-loop-vars ctx-val item item-binding index items-count context-stack)
+                        stacked (conj context-stack loop-vars)
+                        itemized (conj stacked item)]
+                    (node-render (:contents this) sb itemized)
                     (recur (rest items) (inc index))))))
 
             ;; (doseq [val ctx-val]
@@ -101,7 +103,7 @@
    renders the template."
   [template data-map]
   (let [sb (StringBuilder.)
-        context-stack (conj '() data-map)]
+        context-stack (conj '() (assoc data-map :env data-map))]
     (node-render template sb context-stack)
     (.toString sb)))
 

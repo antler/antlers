@@ -35,6 +35,15 @@
           "{{< stack}}{{%obor}}{{yyy}}{{/obor}}{{%ipip}}GGG{{/ipip}}"
           {:yyy "y"}))))
 
+
+(def bottom "{{^is}}aa{{%thing}}thing{{/thing}}bb{{/is}}cc{{%content}}dd{{/content}}ee{{^is}}ff{{%other}}gg{{/other}}hh{{/is}}ii")
+(def work "{{< bottom}}jj{{%thing}}kk{{^is}}ll{{/is}}mm{{/thing}}nn{{%content}}oo{{/content}}pp{{%other}}qq{{/other}}rr")
+
+(deftest nested-block-test
+  (register-template "bottom" bottom)
+  (is (= "aakkllmmbbnnccooeeffqqhhrriippjj"
+         (render-string work {:is false}))))
+
 (deftest clj-test
   (is (= "6bbb"
          (render-string
@@ -113,3 +122,17 @@
       (render-string
        "{{#obly:basis}}{{#yellow:what}}{{basis.ggg}} {{loop.outer.index}}-{{loop.index}}{{what}}{{^loop.last}} {{/loop.last}}{{/yellow:what}}{{/obly:basis}}"
        {:obly [{:yellow ["a" "b" "c" "d" "e" "f"] :ggg "OUT"} {:yellow ["x" "y" "z"] :ggg "THANK"}]}))))
+
+(deftest surrounding-env-test
+  (is
+   (= "5 111 12"
+      (render-string
+       "{{#maroon}}{{yellow}} {{env.yellow}} {{ochre}}{{/maroon}}"
+       {:maroon {:yellow 5 :ochre 12} :yellow 111}))))
+
+(deftest loop-env-test
+  (is
+   (= "5 111 12"
+      (render-string
+       "{{#maroon}}{{yellow}} {{env.yellow}} {{ochre}}{{/maroon}}"
+       {:maroon [{:yellow 5 :ochre 12}] :yellow 111}))))
