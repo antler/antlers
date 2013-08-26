@@ -4,7 +4,12 @@ A swift, robust templating system for clojure
 
 ## Introduction
 
-Antlers grew out of a plain mustache library called [Stencil](http://github.com/davidsantiago/stencil), but under the strain of heavy use acquired many features that now no longer align with the original mustache philosophy (in particular, lambdas no longer behave like mustache lambdas, though there are many new features as well).  Consider it a superset of mustache, with lambdas that make sense.  
+Antlers grew out of a plain mustache library called
+[Stencil](http://github.com/davidsantiago/stencil), but under the strain of
+heavy use acquired many features that now no longer align with the original
+mustache philosophy (in particular, lambdas no longer behave like mustache
+lambdas, though there are many new features as well).  Consider it a superset of
+mustache, with lambdas that make sense.
 
 ## Usage
 
@@ -18,7 +23,8 @@ To simply render a string as a template, use `render-string`:
 
     --> "Roaming the open tundra!"
 
-To render the same template over and over again, use render-file (which caches the parsed AST that can subsequently be reused repeatedly):
+To render the same template over and over again, use render-file (which caches
+the parsed AST that can subsequently be reused repeatedly):
 
     (antlers/render-file
      "some/resource/dir/roaming"
@@ -26,9 +32,12 @@ To render the same template over and over again, use render-file (which caches t
 
     --> "Roaming the open taiga!"
 
-This will find a file called `some/resource/dir/roaming` anywhere in your classpath.  
+This will find a file called `some/resource/dir/roaming` anywhere in your
+classpath.
 
-To cache the AST for a string, you can register a template with a key and then call `render-file` using that key.  It will behave as if it was loaded from a file:
+To cache the AST for a string, you can register a template with a key and then
+call `render-file` using that key.  It will behave as if it was loaded from a
+file:
 
     (require '[antlers.parser :as parser])
     (parser/register-template "roaming" "Roaming the open {{land}}")
@@ -38,13 +47,16 @@ To cache the AST for a string, you can register a template with a key and then c
 
 ## Blocks
 
-Antlers supports content blocks, which are useful for things like layouts.  Suppose you have a file "layout" which looks something like this:
+Antlers supports content blocks, which are useful for things like layouts.
+Suppose you have a file "layout" which looks something like this:
 
     HEADER
       MONOLITHIC BODY
     FOOTER
 
-But you would like to have other bodies, like `BODY OF MODULARITY`, without replicating `HEADER` and `FOOTER` over and over again.  The trick is to use a block:
+But you would like to have other bodies, like `BODY OF MODULARITY`, without
+replicating `HEADER` and `FOOTER` over and over again.  The trick is to use a
+block:
 
     HEADER
       {{%body}}{{/body}}
@@ -61,7 +73,9 @@ Which, when called with `(antlers/render-file "modular" {})` yields:
       BODY OF MODULARITY
     FOOTER
 
-Now, you can have another file called "alternate" which can have totally different contents for the `body` block.  You only need to specify the changes in the blocks, not the rest of the file:
+Now, you can have another file called "alternate" which can have totally
+different contents for the `body` block.  You only need to specify the changes
+in the blocks, not the rest of the file:
 
     {{< layout}}
     {{%body}}This is a more conversational body for the same layout template{{/body}}
@@ -74,7 +88,9 @@ Which yields when rendering "alternate":
 
 ## Helper functions
 
-Any function you pass in the rendering map can be used from inside the templates (this is a departure from mustache, which has lambdas which are passed blocks of unrendered text which needs to be rendered inside the lambda...)
+Any function you pass in the rendering map can be used from inside the templates
+(this is a departure from mustache, which has lambdas which are passed blocks of
+unrendered text which needs to be rendered inside the lambda...)
 
     (antlers/render-string
      "{{inc level}}" 
@@ -82,7 +98,8 @@ Any function you pass in the rendering map can be used from inside the templates
 
      --> 11
 
-This turns out to be very handy!  A function can be used as a predicate in a conditional block (or anywhere else for that matter):
+This turns out to be very handy!  A function can be used as a predicate in a
+conditional block (or anywhere else for that matter):
 
     (antlers/render-string
      "{{#even? x}}X IS EVEN{{/even? x}}"

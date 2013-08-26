@@ -20,7 +20,7 @@
   [context-stack key]
   (loop [curr-context-stack context-stack]
     (if-let [context-top (peek curr-context-stack)]
-      (if (map/contains-named? context-top key)
+      (if (try (map/contains-named? context-top key) (catch Exception e nil))
         context-top
         ;; Didn't have the key, so walk down the stack.
         (recur (next curr-context-stack)))
@@ -98,7 +98,7 @@
      (cond
       (.equals :implicit-top path) (first context-stack) ;; .equals is faster than =
 
-      (contains? path :clojure) ;; are we evaling clojure code?
+      (try (contains? path :clojure) (catch Exception e nil));; are we evaling clojure code?
       (eval-with-map (merge-contexts context-stack) (get path :clojure))
 
       :else
