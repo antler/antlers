@@ -1,4 +1,4 @@
-(defproject antler/antlers "0.5.4"
+(defproject caribou/antlers "0.6.0"
   :description "Swift, robust templating in Clojure"
   :dependencies [[org.clojure/clojure "1.5.1"]
                  [scout "0.1.0"]
