@@ -1,7 +1,8 @@
 (ns antlers.test.core
   (:use clojure.test
         antlers.core
-        antlers.parser))
+        antlers.parser)
+  (:require [clojure.string :as string]))
 
 ;; Test case to make sure we don't get a regression on inverted sections with
 ;; list values for a name.
@@ -136,3 +137,15 @@
       (render-string
        "{{#maroon}}{{yellow}} {{env.yellow}} {{ochre}}{{/maroon}}"
        {:maroon [{:yellow 5 :ochre 12}] :yellow 111}))))
+
+(deftest value-pipe-test
+  (is 
+   (= "53"
+      (render-string
+       "{{nth [1 3 2 19 11 7 888] 3 | inc | + 33}}"
+       {:nth nth :inc inc :+ +}))
+
+   (= "4"
+      (render-string
+       "{{lower XX | split #\"-\" | count }}"
+       {:XX "Hey-what-the-ANIMAL" :lower string/lower-case :split string/split :count count}))))

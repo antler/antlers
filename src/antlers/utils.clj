@@ -78,7 +78,9 @@
   [context not-found]
   (fn [leaf]
     (if (symbol? leaf)
-      (nested-get context leaf not-found)
+      (if (= '| leaf)
+        '|
+        (nested-get context leaf not-found))
       leaf)))
 
 (defn contextualize-tree
@@ -86,6 +88,20 @@
   (let [draw (draw-context context not-found)
         walked (walk/postwalk draw tree)]
     walked))
+
+(defn apply-chain
+  [chain]
+  (let [source (first chain)
+        value (apply (first source) (rest source))
+        pipe (rest chain)]
+    (reduce 
+     (fn [value link]
+       (let [command (first link)]
+         (if (= '| command)
+           value
+           (let [args (cons value (rest link))]
+             (apply command args)))))
+     value pipe)))
 
 (defn context-get
   "Given a context stack and key, implements the rules for getting the
@@ -105,8 +121,8 @@
       (let [defined (contextualize-tree context-stack path not-found)
             front (first defined)]
         (if (instance? clojure.lang.Fn front)
-          (let [args (rest defined)
-                result (apply front args)]
+          (let [piped (partition-by #{'|} defined)
+                result (apply-chain piped)]
             result)
           front)))))
 
