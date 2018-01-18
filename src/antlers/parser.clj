@@ -490,6 +490,11 @@
   (swap! dynamic-template-store assoc template-name content-string)
   (invalidate-cache-entry template-name))
 
+(defn register-conditionally
+  [template-name content-string]
+  (if-not (get @dynamic-template-store template-name)
+    (register-template template-name content-string)))
+
 (defn unregister-template
   "Removes the template with the given name from the dynamic template store."
   [template-name]
